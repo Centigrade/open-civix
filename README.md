@@ -1,4 +1,4 @@
-# 🐚 Open Civix – Democracy Resilience Platform
+# 🐚 OpenCivix – Democracy Resilience Platform
 
 ## 👁️ What?
 OpenCivix is a democracy resilience platform with tools & utilities to enhance AI literacy, cyber resilience and informed decision-making.
