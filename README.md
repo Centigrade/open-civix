@@ -3,7 +3,7 @@
 ## 👁️ What?
 OpenCivix is a democracy resilience platform with tools & utilities to enhance AI literacy, cyber resilience and informed decision-making.
 
-It is currently the showcase playground for the human-centered **AI Academy Trainings** that [Centigrade](https://www.centigrade.de/en) offers.
+It is currently the showcase playground for the human-centered AI Academy Training [Agents On Rails](https://github.com/Centigrade/agents-on-rails) that [Centigrade](https://www.centigrade.de/en) offers.
 
 ## 🧠 Why?
 It has, however, started for a real purpose, a purpose beyond just showcasing how to implement large scale systems using human-centered AI.
