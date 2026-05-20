@@ -7,45 +7,57 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             padding: 20px;
         }
         .form-group {
             margin-bottom: 15px;
         }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
         input[type="text"] {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .logo-preview {
+            margin-top: 10px;
+            max-width: 100px;
+            max-height: 100px;
         }
         button {
             background-color: #4CAF50;
             color: white;
             padding: 10px 15px;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
         }
-        .parties-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+        button:hover {
+            background-color: #45a049;
         }
-        .party-card {
-            border: 1px solid #ddd;
+        #partiesList {
+            margin-top: 30px;
+        }
+        .party-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
             padding: 10px;
-            text-align: center;
+            border: 1px solid #eee;
+            border-radius: 4px;
         }
         .party-logo {
-            max-width: 100%;
-            height: 100px;
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
             object-fit: contain;
-            margin-bottom: 10px;
-        }
-        .delete-btn {
-            background-color: #f44336;
-            margin-top: 10px;
         }
     </style>
 </head>
@@ -60,74 +72,74 @@
     <div class="form-group">
         <label for="partyLogo">Party Logo:</label>
         <input type="file" id="partyLogo" accept="image/*">
+        <img id="logoPreview" class="logo-preview" style="display: none;">
     </div>
 
-    <button onclick="addParty()">Add Party</button>
+    <button id="addPartyBtn">Add Party</button>
 
-    <div class="parties-container" id="partiesContainer"></div>
+    <div id="partiesList">
+        <h2>Parties List</h2>
+        <div id="partiesContainer"></div>
+    </div>
 
     <script>
-        let parties = JSON.parse(localStorage.getItem('parties')) || [];
+        document.addEventListener('DOMContentLoaded', function() {
+            const partyNameInput = document.getElementById('partyName');
+            const partyLogoInput = document.getElementById('partyLogo');
+            const logoPreview = document.getElementById('logoPreview');
+            const addPartyBtn = document.getElementById('addPartyBtn');
+            const partiesContainer = document.getElementById('partiesContainer');
 
-        function renderParties() {
-            const container = document.getElementById('partiesContainer');
-            container.innerHTML = '';
-
-            parties.forEach((party, index) => {
-                const card = document.createElement('div');
-                card.className = 'party-card';
-
-                const logo = document.createElement('img');
-                logo.className = 'party-logo';
-                logo.src = party.logo;
-                logo.alt = party.name;
-
-                const name = document.createElement('div');
-                name.textContent = party.name;
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.onclick = () => {
-                    parties.splice(index, 1);
-                    saveParties();
-                };
-
-                card.appendChild(logo);
-                card.appendChild(name);
-                card.appendChild(deleteBtn);
-                container.appendChild(card);
+            // Preview logo when selected
+            partyLogoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        logoPreview.src = e.target.result;
+                        logoPreview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
             });
-        }
 
-        function saveParties() {
-            localStorage.setItem('parties', JSON.stringify(parties));
-            renderParties();
-        }
+            // Add party to list
+            addPartyBtn.addEventListener('click', function() {
+                const name = partyNameInput.value.trim();
+                const logoFile = partyLogoInput.files[0];
 
-        function addParty() {
-            const nameInput = document.getElementById('partyName');
-            const logoInput = document.getElementById('partyLogo');
+                if (name && logoFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const logoData = e.target.result;
 
-            if (!nameInput.value || logoInput.files.length === 0) {
-                alert('Please enter a name and select a logo');
-                return;
-            }
+                        // Create party item
+                        const partyItem = document.createElement('div');
+                        partyItem.className = 'party-item';
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                parties.push({
-                    name: nameInput.value,
-                    logo: e.target.result
-                });
-                saveParties();
-                nameInput.value = '';
-                logoInput.value = '';
-            };
-            reader.readAsDataURL(logoInput.files[0]);
-        }
+                        const logoImg = document.createElement('img');
+                        logoImg.className = 'party-logo';
+                        logoImg.src = logoData;
+                        logoImg.alt = `${name} logo`;
 
-        renderParties();
+                        const nameSpan = document.createElement('span');
+                        nameSpan.textContent = name;
+
+                        partyItem.appendChild(logoImg);
+                        partyItem.appendChild(nameSpan);
+                        partiesContainer.appendChild(partyItem);
+
+                        // Reset form
+                        partyNameInput.value = '';
+                        partyLogoInput.value = '';
+                        logoPreview.style.display = 'none';
+                    }
+                    reader.readAsDataURL(logoFile);
+                } else {
+                    alert('Please enter both party name and select a logo');
+                }
+            });
+        });
     </script>
 </body>
 </html>
