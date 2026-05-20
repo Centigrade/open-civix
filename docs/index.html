@@ -3,239 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Party Directory</title>
+    <title>Voting Guide - Party List</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            line-height: 1.6;
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #2c3e50;
         }
-        .upload-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px dashed #ccc;
+        .party-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .party-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
         }
-        .upload-btn {
-            display: inline-block;
+        .party-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 1px solid #eee;
+            background-color: white;
+        }
+        .party-name {
+            flex-grow: 1;
+            font-weight: bold;
+        }
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .edit-btn:hover {
+            background-color: #2980b9;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .file-input {
+            border: none;
+            padding: 0;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .add-party-btn {
+            display: block;
+            margin: 20px auto;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #3498db;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
         }
-        .upload-btn:hover {
-            background-color: #45a049;
-        }
-        .file-input {
-            display: none;
-        }
-        .party-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        .party-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .party-logo {
-            max-width: 100px;
-            max-height: 100px;
-            margin-bottom: 10px;
-            object-fit: contain;
-        }
-        .party-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .party-region {
-            font-size: 14px;
-            color: #666;
-        }
-        .filter-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-        }
-        .filter-input {
-            padding: 8px;
-            width: 100%;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .sort-select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 10px;
+        .add-party-btn:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Party Directory</h1>
+    <h1>Voting Guide - Party List</h1>
 
-        <div class="upload-section">
-            <h2>Upload Party Data</h2>
-            <p>Upload a JSON file with party data (name, logo URL, region, ideology)</p>
-            <label class="upload-btn" for="file-upload">Choose File</label>
-            <input id="file-upload" class="file-input" type="file" accept=".json">
-            <div id="file-name"></div>
-        </div>
+    <div class="party-container" id="partyContainer">
+        <!-- Parties will be added here dynamically -->
+    </div>
 
-        <div class="filter-section">
-            <h3>Filter Parties</h3>
-            <input type="text" id="search-input" class="filter-input" placeholder="Search by name or region...">
-            <select id="sort-select" class="sort-select">
-                <option value="name-asc">Sort by Name (A-Z)</option>
-                <option value="name-desc">Sort by Name (Z-A)</option>
-                <option value="region-asc">Sort by Region (A-Z)</option>
-                <option value="region-desc">Sort by Region (Z-A)</option>
-            </select>
-        </div>
+    <button class="add-party-btn" id="addPartyBtn">Add New Party</button>
 
-        <div class="party-grid" id="party-grid">
-            <!-- Parties will be displayed here -->
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Edit Party</h2>
+            <form id="partyForm">
+                <input type="hidden" id="partyIndex">
+                <div class="form-group">
+                    <label for="partyName">Party Name:</label>
+                    <input type="text" id="partyName" required>
+                </div>
+                <div class="form-group">
+                    <label for="partyLogo">Party Logo:</label>
+                    <input type="file" id="partyLogo" accept="image/*" class="file-input">
+                    <img id="logoPreview" style="max-width: 100px; max-height: 100px; margin-top: 10px; display: none;">
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileUpload = document.getElementById('file-upload');
-            const fileNameDisplay = document.getElementById('file-name');
-            const partyGrid = document.getElementById('party-grid');
-            const searchInput = document.getElementById('search-input');
-            const sortSelect = document.getElementById('sort-select');
+        // Sample data - in a real app, you might want to use localStorage
+        let parties = [
+            { name: "Democratic Party", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Democratic_Party_%28United_States%29_logo.svg/1200px-Democratic_Party_%28United_States%29_logo.svg.png" },
+            { name: "Republican Party", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Republican_Party_%28United_States%29_logo.svg/1200px-Republican_Party_%28United_States%29_logo.svg.png" },
+            { name: "Green Party", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Green_Party_US_logo.svg/1200px-Green_Party_US_logo.svg.png" }
+        ];
 
-            let parties = [];
+        // DOM elements
+        const partyContainer = document.getElementById('partyContainer');
+        const addPartyBtn = document.getElementById('addPartyBtn');
+        const editModal = document.getElementById('editModal');
+        const partyForm = document.getElementById('partyForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const partyNameInput = document.getElementById('partyName');
+        const partyLogoInput = document.getElementById('partyLogo');
+        const logoPreview = document.getElementById('logoPreview');
+        const partyIndexInput = document.getElementById('partyIndex');
 
-            // Handle file upload
-            fileUpload.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    fileNameDisplay.textContent = `Selected file: ${file.name}`;
+        // Initialize the app
+        function init() {
+            renderParties();
+            setupEventListeners();
+        }
 
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        try {
-                            parties = JSON.parse(e.target.result);
-                            displayParties(parties);
-                        } catch (error) {
-                            alert('Error parsing JSON file. Please check the format.');
-                        }
-                    };
-                    reader.readAsText(file);
+        // Render parties to the DOM
+        function renderParties() {
+            partyContainer.innerHTML = '';
+
+            parties.forEach((party, index) => {
+                const partyElement = document.createElement('div');
+                partyElement.className = 'party-item';
+                partyElement.innerHTML = `
+                    <img src="${party.logo}" alt="${party.name} logo" class="party-logo" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
+                    <div class="party-name">${party.name}</div>
+                    <button class="edit-btn" data-index="${index}">Edit</button>
+                `;
+                partyContainer.appendChild(partyElement);
+            });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Add new party
+            addPartyBtn.addEventListener('click', () => {
+                modalTitle.textContent = 'Add New Party';
+                partyNameInput.value = '';
+                partyLogoInput.value = '';
+                logoPreview.style.display = 'none';
+                partyIndexInput.value = '';
+                editModal.style.display = 'flex';
+            });
+
+            // Edit party
+            partyContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('edit-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    const party = parties[index];
+
+                    modalTitle.textContent = 'Edit Party';
+                    partyNameInput.value = party.name;
+                    partyIndexInput.value = index;
+                    logoPreview.src = party.logo;
+                    logoPreview.style.display = 'block';
+                    editModal.style.display = 'flex';
                 }
             });
 
-            // Display parties
-            function displayParties(partiesToDisplay) {
-                partyGrid.innerHTML = '';
+            // Cancel edit
+            cancelBtn.addEventListener('click', () => {
+                editModal.style.display = 'none';
+            });
 
-                if (partiesToDisplay.length === 0) {
-                    partyGrid.innerHTML = '<p>No parties to display. Please upload a JSON file.</p>';
+            // Close modal when clicking outside
+            editModal.addEventListener('click', (e) => {
+                if (e.target === editModal) {
+                    editModal.style.display = 'none';
+                }
+            });
+
+            // Handle form submission
+            partyForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const index = partyIndexInput.value;
+                const name = partyNameInput.value.trim();
+                const logoFile = partyLogoInput.files[0];
+
+                if (!name) {
+                    alert('Please enter a party name');
                     return;
                 }
 
-                partiesToDisplay.forEach(party => {
-                    const partyCard = document.createElement('div');
-                    partyCard.className = 'party-card';
-
-                    let logoHtml = '';
-                    if (party.logo) {
-                        logoHtml = `<img src="${party.logo}" alt="${party.name} logo" class="party-logo" onerror="this.style.display='none'">`;
-                    }
-
-                    partyCard.innerHTML = `
-                        ${logoHtml}
-                        <div class="party-name">${party.name || 'Unnamed Party'}</div>
-                        ${party.region ? `<div class="party-region">${party.region}</div>` : ''}
-                        ${party.ideology ? `<div class="party-ideology">${party.ideology}</div>` : ''}
-                    `;
-
-                    partyGrid.appendChild(partyCard);
-                });
-            }
-
-            // Search functionality
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                const filteredParties = parties.filter(party =>
-                    (party.name && party.name.toLowerCase().includes(searchTerm)) ||
-                    (party.region && party.region.toLowerCase().includes(searchTerm))
-                );
-                displayParties(filteredParties);
+                if (logoFile) {
+                    // Read the logo file and convert to data URL
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const logoDataUrl = e.target.result;
+                        saveParty(index, name, logoDataUrl);
+                    };
+                    reader.readAsDataURL(logoFile);
+                } else {
+                    // Keep existing logo if no new one was selected
+                    const existingLogo = index !== '' ? parties[index].logo : '';
+                    saveParty(index, name, existingLogo);
+                }
             });
 
-            // Sort functionality
-            sortSelect.addEventListener('change', function() {
-                const sortBy = this.value;
-                const sortedParties = [...parties];
-
-                sortedParties.sort((a, b) => {
-                    const aValue = sortBy.startsWith('name') ? (a.name || '') : (a.region || '');
-                    const bValue = sortBy.startsWith('name') ? (b.name || '') : (b.region || '');
-
-                    if (sortBy.endsWith('asc')) {
-                        return aValue.localeCompare(bValue);
-                    } else {
-                        return bValue.localeCompare(aValue);
-                    }
-                });
-
-                displayParties(sortedParties);
+            // Preview logo when file is selected
+            partyLogoInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        logoPreview.src = e.target.result;
+                        logoPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
             });
+        }
 
-            // Sample data for testing
-            if (parties.length === 0) {
-                const sampleData = [
-                    {
-                        "name": "Green Party",
-                        "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Green_Party_US_Logo.svg/200px-Green_Party_US_Logo.svg.png",
-                        "region": "National",
-                        "ideology": "Green politics"
-                    },
-                    {
-                        "name": "Liberty Party",
-                        "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Liberty_Party_Logo.svg/200px-Liberty_Party_Logo.svg.png",
-                        "region": "Midwest",
-                        "ideology": "Libertarianism"
-                    },
-                    {
-                        "name": "Progressive Alliance",
-                        "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Progressive_Alliance_logo.svg/200px-Progressive_Alliance_logo.svg.png",
-                        "region": "West Coast",
-                        "ideology": "Progressivism"
-                    }
-                ];
-
-                // Uncomment the next line to see sample data
-                // displayParties(sampleData);
+        // Save party (add or update)
+        function saveParty(index, name, logo) {
+            if (index === '') {
+                // Add new party
+                parties.push({ name, logo });
+            } else {
+                // Update existing party
+                parties[index] = { name, logo };
             }
-        });
+
+            editModal.style.display = 'none';
+            renderParties();
+        }
+
+        // Initialize the app
+        init();
     </script>
 </body>
 </html>
