@@ -11,135 +11,86 @@
             margin: 0 auto;
             padding: 20px;
         }
-        .form-group {
+        .party-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+        .party-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 1px solid #eee;
         }
-        input[type="text"] {
-            width: 100%;
+        input, button {
             padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .logo-preview {
-            margin-top: 10px;
-            max-width: 100px;
-            max-height: 100px;
+            margin: 5px 0;
         }
         button {
-            background-color: #4CAF50;
+            background: #4CAF50;
             color: white;
-            padding: 10px 15px;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #45a049;
-        }
-        #partiesList {
-            margin-top: 30px;
-        }
-        .party-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-        }
-        .party-logo {
-            width: 50px;
-            height: 50px;
-            margin-right: 15px;
-            object-fit: contain;
+            background: #45a049;
         }
     </style>
 </head>
 <body>
     <h1>Party Manager</h1>
-
-    <div class="form-group">
-        <label for="partyName">Party Name:</label>
-        <input type="text" id="partyName" placeholder="Enter party name">
-    </div>
-
-    <div class="form-group">
-        <label for="partyLogo">Party Logo:</label>
+    <div>
+        <input type="text" id="partyName" placeholder="Party Name">
         <input type="file" id="partyLogo" accept="image/*">
-        <img id="logoPreview" class="logo-preview" style="display: none;">
+        <button onclick="addParty()">Add Party</button>
     </div>
-
-    <button id="addPartyBtn">Add Party</button>
-
-    <div id="partiesList">
-        <h2>Parties List</h2>
-        <div id="partiesContainer"></div>
-    </div>
+    <div id="partiesContainer"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const partyNameInput = document.getElementById('partyName');
-            const partyLogoInput = document.getElementById('partyLogo');
-            const logoPreview = document.getElementById('logoPreview');
-            const addPartyBtn = document.getElementById('addPartyBtn');
-            const partiesContainer = document.getElementById('partiesContainer');
+        let parties = [];
 
-            // Preview logo when selected
-            partyLogoInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        logoPreview.src = e.target.result;
-                        logoPreview.style.display = 'block';
-                    }
-                    reader.readAsDataURL(file);
-                }
+        function addParty() {
+            const name = document.getElementById('partyName').value.trim();
+            const logoInput = document.getElementById('partyLogo');
+
+            if (!name || !logoInput.files.length) {
+                alert('Please provide both name and logo');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const party = {
+                    id: Date.now(),
+                    name: name,
+                    logo: e.target.result
+                };
+                parties.push(party);
+                renderParties();
+                document.getElementById('partyName').value = '';
+                logoInput.value = '';
+            };
+            reader.readAsDataURL(logoInput.files[0]);
+        }
+
+        function renderParties() {
+            const container = document.getElementById('partiesContainer');
+            container.innerHTML = '';
+
+            parties.forEach(party => {
+                const card = document.createElement('div');
+                card.className = 'party-card';
+                card.innerHTML = `
+                    <img src="${party.logo}" class="party-logo" alt="${party.name} logo">
+                    <div>${party.name}</div>
+                `;
+                container.appendChild(card);
             });
-
-            // Add party to list
-            addPartyBtn.addEventListener('click', function() {
-                const name = partyNameInput.value.trim();
-                const logoFile = partyLogoInput.files[0];
-
-                if (name && logoFile) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const logoData = e.target.result;
-
-                        // Create party item
-                        const partyItem = document.createElement('div');
-                        partyItem.className = 'party-item';
-
-                        const logoImg = document.createElement('img');
-                        logoImg.className = 'party-logo';
-                        logoImg.src = logoData;
-                        logoImg.alt = `${name} logo`;
-
-                        const nameSpan = document.createElement('span');
-                        nameSpan.textContent = name;
-
-                        partyItem.appendChild(logoImg);
-                        partyItem.appendChild(nameSpan);
-                        partiesContainer.appendChild(partyItem);
-
-                        // Reset form
-                        partyNameInput.value = '';
-                        partyLogoInput.value = '';
-                        logoPreview.style.display = 'none';
-                    }
-                    reader.readAsDataURL(logoFile);
-                } else {
-                    alert('Please enter both party name and select a logo');
-                }
-            });
-        });
+        }
     </script>
 </body>
 </html>
