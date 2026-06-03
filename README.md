@@ -31,6 +31,9 @@ A set of resources and utilities towards a civic life that becomes more particip
 The digital lab for tech & civic resilience. Mission: strengthening cyber resilience, democratizing AI literacy, and giving every citizen the keys to free and informed decision-making.
 👉 https://civix.digital/
 
+### Google Civic
+The Google Civic Information API lets developers build applications that display Civic information to their users. For any US residential address, you can look up the Open Civic Data identifiers that represent the address at each elected level of government. During supported elections, you can also look up polling places, early vote location, candidate data, and other election official information.
+👉 https://developers.google.com/civic-information
 
 
 
